@@ -1,4 +1,4 @@
-const blog = require('../models/blog')
+//const blog = require('../models/blog')
 const _ = require('lodash');
 
 const dummy = (blogs) => {
