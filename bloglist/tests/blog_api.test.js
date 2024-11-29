@@ -15,7 +15,6 @@ beforeEach(async () => {
   blogObject = new Blog(helper.initialBlogs[1])
   await blogObject.save()
   const db = await helper.blogsInDb()
-  console.log(db)
 })
 
 test('blogs are returned as json', async () => {
@@ -39,6 +38,19 @@ test('there are two blogs', async () => {
     assert.strictEqual(response.body.length, helper.initialBlogs.length)
   })
 
+test('unique identifier property is id, not _id', async () => {
+  const blogsAtStart = await helper.blogsInDb()
+
+  const blogToView = blogsAtStart[0]
+
+  const resultBlog = await api
+    .get(`/api/blogs/${blogToView.id}`)
+    .expect(200)
+    .expect('Content-Type', /application\/json/)
+
+  assert.deepStrictEqual(resultBlog.body, blogToView)
+})
+
 test('the first blog is about a blog man', async () => {
   const response = await api
   .get('/api/blogs')
@@ -48,23 +60,30 @@ test('the first blog is about a blog man', async () => {
   assert(authors.includes('Blog Man'))
 })
 
-test('a valid blog can be added ', async () => {
+test('a blog can be created with POST', async () => {
   const newBlog = {
-    "title": "Cuisine", "author": "Pasta Man", "url": "http://food.com", "likes": "33"
-  }
+    title: "Cuisine",
+    author: "Pasta Man",
+    url: "http://food.com",
+    likes: 543,
+  };
 
-  await api
+  const response = await api
     .post('/api/blogs')
     .send(newBlog)
     .expect(201)
     .expect('Content-Type', /application\/json/)
 
+    assert.strictEqual(response.body.title, newBlog.title);
+    assert.strictEqual(response.body.author, newBlog.author);
+    assert.strictEqual(response.body.url, newBlog.url);
+    assert.strictEqual(response.body.likes, newBlog.likes);
+
     const blogsAtEnd = await helper.blogsInDb()
     assert.strictEqual(blogsAtEnd.length, helper.initialBlogs.length + 1)
-  
-    const authors = blogsAtEnd.map(n => n.author)
 
-  assert(authors.includes('Pasta Man'))
+    const authors = blogsAtEnd.map(b => b.author)
+    assert(authors.includes('Pasta Man'))
 })
 
 /*test('blog without title is not added', async () => {
