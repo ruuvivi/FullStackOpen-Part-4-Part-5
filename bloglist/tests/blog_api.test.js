@@ -10,15 +10,10 @@ const api = supertest(app)
 
 beforeEach(async () => {
   await Blog.deleteMany({})
-  let blogObject = new Blog(helper.initialBlogs[0])
-  await blogObject.save()
-  blogObject = new Blog(helper.initialBlogs[1])
-  await blogObject.save()
-  const db = await helper.blogsInDb()
+  await Blog.insertMany(helper.initialBlogs)
 })
 
 test('blogs are returned as json', async () => {
-  const blogsAtStart = await helper.blogsInDb()
   await api
     .get('/api/blogs')
     .expect(200)
@@ -74,31 +69,39 @@ test('a blog can be created with POST', async () => {
     .expect(201)
     .expect('Content-Type', /application\/json/)
 
-    assert.strictEqual(response.body.title, newBlog.title);
-    assert.strictEqual(response.body.author, newBlog.author);
-    assert.strictEqual(response.body.url, newBlog.url);
-    assert.strictEqual(response.body.likes, newBlog.likes);
+    assert.strictEqual(response.body.title, newBlog.title)
+    assert.strictEqual(response.body.author, newBlog.author)
+    assert.strictEqual(response.body.url, newBlog.url)
+    assert.strictEqual(response.body.likes, newBlog.likes)
 
     const blogsAtEnd = await helper.blogsInDb()
     assert.strictEqual(blogsAtEnd.length, helper.initialBlogs.length + 1)
 
-    const authors = blogsAtEnd.map(b => b.author)
-    assert(authors.includes('Pasta Man'))
+    const findBlog = blogsAtEnd.find(b => b.title === newBlog.title)
+    assert.strictEqual(findBlog.title, newBlog.title)
+    assert.strictEqual(findBlog.author, newBlog.author)
+    assert.strictEqual(findBlog.url, newBlog.url)
+    assert.strictEqual(findBlog.likes, newBlog.likes)
 })
 
-/*test('blog without title is not added', async () => {
+test('blog without likes gets 0 likes', async () => {
   const newBlog = {
-    "author": "Pasta Man", "url": "http://food.com", "likes": "33"
+    "title": "Cuisine",
+    "author": "Pasta Man",
+    "url": "http://food.com"
   }
 
   await api
     .post('/api/blogs')
     .send(newBlog)
-    .expect(400)
+    .expect(201)
+    .expect('Content-Type', /application\/json/)
 
     const blogsAtEnd = await helper.blogsInDb()
-    assert.strictEqual(blogsAtEnd.length, helper.initialBlogs.length)
-})*/
+    const findBlog = blogsAtEnd.find(b => b.title === newBlog.title)
+    assert.strictEqual(findBlog.likes, 0)
+    assert.strictEqual(blogsAtEnd.length, helper.initialBlogs.length + 1)
+})
 
 test('a specific blog can be viewed', async () => {
   const blogsAtStart = await helper.blogsInDb()
