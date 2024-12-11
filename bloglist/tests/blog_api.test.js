@@ -1,12 +1,11 @@
-const { test, after, beforeEach } = require('node:test')
-const { describe } = require('node:test')
+const { test, after, beforeEach, describe } = require('node:test')
 const Blog = require('../models/blog')
 const assert = require('node:assert')
 const mongoose = require('mongoose')
 const helper = require('./test_helper')
 const supertest = require('supertest')
 const app = require('../app')
-const { title } = require('node:process')
+//const { title } = require('node:process')
 
 const api = supertest(app)
 
@@ -101,7 +100,7 @@ describe('post blogs', () => {
   })
 })
 
-describe('post of improper blogs', () => {
+describe('post of lacking blogs', () => {
   test('blog without likes gets 0 likes', async () => {
     const newBlog = {
       "title": "Cuisine",
@@ -151,6 +150,30 @@ describe('delete blogs', () => {
     assert(!authors.includes(blogToDelete.author))
   
     assert.strictEqual(blogsAtEnd.length, helper.initialBlogs.length - 1)
+  })
+})
+
+describe('update blogs', () => {
+  test('a blog can be updated', async () => {
+  const replaceBlog = helper.initialBlogs[0]
+    const blog = {
+      "title": "Cuisine",
+      "author": "Pasta Man",
+      "url": "http://food.com",
+      "likes": 22
+    }
+    const response = await api
+      .put(`/api/blogs/${replaceBlog.id}`)
+      .send(blog)
+      .expect(200)
+      .expect('Content-Type', /application\/json/)
+
+    const updatedBlog = response.body
+
+    assert.strictEqual(updatedBlog.title, blog.title);
+    assert.strictEqual(updatedBlog.author, blog.author);
+    assert.strictEqual(updatedBlog.url, blog.url);
+    assert.strictEqual(updatedBlog.likes, blog.likes);
   })
 })
 
