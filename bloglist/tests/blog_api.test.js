@@ -5,7 +5,6 @@ const mongoose = require('mongoose')
 const helper = require('./test_helper')
 const supertest = require('supertest')
 const app = require('../app')
-//const { title } = require('node:process')
 
 const api = supertest(app)
 
@@ -155,15 +154,18 @@ describe('delete blogs', () => {
 
 describe('update blogs', () => {
   test('a blog can be updated', async () => {
-  const replaceBlog = helper.initialBlogs[0]
+  const blogsAtStart = await helper.blogsInDb()
+  const blogToUpdate = blogsAtStart[0]
+
     const blog = {
       "title": "Cuisine",
       "author": "Pasta Man",
       "url": "http://food.com",
       "likes": 22
     }
+
     const response = await api
-      .put(`/api/blogs/${replaceBlog.id}`)
+      .put(`/api/blogs/${blogToUpdate.id}`)
       .send(blog)
       .expect(200)
       .expect('Content-Type', /application\/json/)
