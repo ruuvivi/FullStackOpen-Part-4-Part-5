@@ -1,3 +1,4 @@
+const usersRouter = require('./controllers/users')
 const config = require('./utils/config')
 const express = require('express')
 require('express-async-errors')
@@ -29,5 +30,6 @@ app.use('/api/blogs', blogsRouter)
 
 app.use(middleware.unknownEndpoint)
 app.use(middleware.errorHandler)
+app.use('/api/users', usersRouter)
 
 module.exports = app
