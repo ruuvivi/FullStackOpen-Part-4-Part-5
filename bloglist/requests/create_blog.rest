@@ -1,6 +1,7 @@
 POST http://localhost:3003/api/blogs
 Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5c2VybmFtZSI6Im1sdXVra2FpIiwiaW
 
 {
-    "title": "snakes", "author": "SLytherin Man", "url": "http://sss.com", "likes": "33"
+    "title": "meToken", "author": "Token Man", "url": "http://token.com", "likes": "2001", "userId": "677e5dd145bdf90f9d342790"
 }
