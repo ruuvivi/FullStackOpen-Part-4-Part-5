@@ -1,4 +1,4 @@
-# FullStackOpen Parts 4-5
+# FullStackOpenParts 4
 
 Exercises in part 4 of an introduction course to modern web development with JavaScript using React, Redux, Node.js, MongoDB, GraphQL and TypeScript.
 
